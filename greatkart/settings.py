@@ -130,6 +130,7 @@ STATICFILES_DIRS = [
     'greatkart/static',
 ]
 
+
 # media file configuration
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR /'media'
@@ -139,3 +140,12 @@ MESSAGE_TAGS = {
     messages.ERROR: 'danger',
     50: 'critical',
 }
+
+
+# SMTP configuration
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'beppe.miletto@gmail.com'
+EMAIL_HOST_PASSWORD = 'hlgptkhxvqseiece'
+EMAIL_USE_TLS = True
+

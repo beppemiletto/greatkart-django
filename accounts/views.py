@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.http.response import HttpResponse
 from .forms import RegistrationForm
 from .models import Account, MyAccountManager
 from django.contrib import messages, auth
@@ -36,7 +37,7 @@ def register(request):
                 'token': default_token_generator.make_token(user),
 
             }
-            message = render_to_string('account/account_verification_email.html',email_context,request)
+            message = render_to_string('accounts/account_verification_email.html',email_context,request)
             to_email = email
             send_email = EmailMessage(mail_subject, message,to=[to_email])
             send_email.send()
@@ -76,3 +77,24 @@ def logout(request):
     messages.success(request, 'You are now logged out')
 
     return redirect('login')
+
+def activate(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = Account._default_manager.get(pk=uid)
+    except(TypeError, ValueError, OverflowError, Account.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        user.is_active = True
+        user.save()
+        messages.success(request, "Congratulations, you account is now activated.")
+        return redirect('login')
+    else:
+        messages.error(request, "Invalid activation link.")
+        return redirect('register')
+
+
+
+
+    return HttpResponse('<H1>Your registration is now OK </H1><br> <H2>Goto Home Page</H2>')
