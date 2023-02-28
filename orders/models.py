@@ -5,6 +5,10 @@ from store.models import Product, Variation
 
 class Payment(models.Model):
     user = models.ForeignKey(Account, on_delete=models.CASCADE)
+    payer_mail = models.CharField(max_length=100, default="")
+    payer_id = models.CharField(max_length=100, default="")
+    payer_given_name = models.CharField(max_length=100, default="")
+    payer_surname = models.CharField(max_length=100, default="")
     payment_id = models.CharField(max_length=100)
     payment_method = models.CharField(max_length=100)
     amount_paid = models.CharField(max_length=100)
@@ -45,8 +49,23 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def full_name(self):
+        return f'{self.first_name} {self.last_name}'
+
+    def full_address(self):
+        return f'{self.address_line_1} {self.address_line_2}'
+
+    def full_name_address(self):
+        return "{} {}, Address {} {}, {} {} - {} \n Phone {} - email {}".format(self.first_name, self.last_name,
+                                                                            self.address_line_1, self.address_line_2,
+                                                                                self.country, self.state, self.city,
+                                                                                self.phone, self.email)
+
     def __str__(self):
-        return self.user.first_name
+        if self.user is not None:
+            return self.user.first_name
+        else:
+            return 'A generic Order'
 
 
 class OrderProduct(models.Model):
@@ -54,9 +73,7 @@ class OrderProduct(models.Model):
     payment = models.ForeignKey(Payment, on_delete=models.SET_NULL, blank=True, null=True)
     user = models.ForeignKey(Account, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    variation = models.ForeignKey(Variation,on_delete=models.CASCADE)
-    color = models.CharField(max_length=50)
-    size = models.CharField(max_length=50)
+    variations  =   models.ManyToManyField(Variation, blank=True)
     quantity = models.IntegerField()
     product_price = models.FloatField()
     ordered = models.BooleanField(default=False)
